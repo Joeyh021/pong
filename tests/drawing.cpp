@@ -4,11 +4,11 @@ int main() {
     sf::RenderWindow window(sf::VideoMode(800, 600), "New Window");  // create new window of type RenderWindow for drawing into
 
     // main loop
-    while (window.isOpen()) {
+    while(window.isOpen()) {
         sf::Event event;
 
-        while (window.pollEvent(event)) {  // pop event queue
-            switch (event.type) {          // handle events
+        while(window.pollEvent(event)) {  // pop event queue
+            switch(event.type) {          // handle events
                 case sf::Event::Closed:
                     window.close();
                     break;
