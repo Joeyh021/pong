@@ -49,6 +49,8 @@ class Ball : public Collidable {
     void draw(sf::RenderWindow& win) const override;
 
     void bounce(const sf::Vector2f& PoI);
+
+    void set_pos(const sf::Vector2f p);
 };
 
 #endif
