@@ -8,55 +8,53 @@ std::ostream& operator<<(std::ostream& os, const sf::Vector2i& v) {
     return os;
 }
 
-Collidable::Collidable(const sf::Vector2f& pos, const sf::Color& colour) : pos(pos), colour(colour){};
+Collidable::Collidable() : shape(nullptr){};
 
 const sf::Color& Collidable::get_colour() const {
-    return colour;
+    return shape->getFillColor();
 }
 
 void Collidable::set_colour(const sf::Color& col) {
-    colour = col;
+    shape->setFillColor(col);
 }
 
 const sf::Vector2f& Collidable::get_pos() const {
-    return pos;
+    return shape->getPosition();
+}
+
+void Collidable::set_pos(const sf::Vector2f& pos) {
+    shape->setPosition(pos);
 }
 
 void Collidable::move(const sf::Vector2f& movement) {
-    pos += movement;
+    shape->move(movement);
 }
 
-Paddle::Paddle(const sf::Vector2f& size, const sf::Vector2f& pos, const sf::Color& colour) : Collidable(pos, colour), size(size) {
-    shape = sf::RectangleShape(size);
-    shape.setPosition(pos);
+void Collidable::draw(sf::RenderWindow& win) const {
+    win.draw(*shape);
+}
+
+Paddle::Paddle(const sf::Vector2f& size, const sf::Vector2f& pos, const sf::Color& colour) : size(size) {
+    rect = sf::RectangleShape(size);
+    rect.setPosition(pos);
+    shape = &rect;
 }
 
 bool Paddle::bounded(const sf::Vector2f& point) const {
     return 0;
 }
 
-void Paddle::draw(sf::RenderWindow& win) const {
-    win.draw(shape);
-}
-
-Ball::Ball(int radius, const sf::Vector2f& pos, const sf::Color& colour) : Collidable(pos, colour), radius(radius) {
-    shape = sf::CircleShape(radius);
-    shape.setPosition(pos);
+Ball::Ball(int radius, const sf::Vector2f& pos, const sf::Color& colour) : radius(radius) {
+    circle = sf::CircleShape(radius);
+    circle.setPosition(pos);
+    shape = &circle;
 }
 
 bool Ball::bounded(const sf::Vector2f& point) const {
     return 0;
 }
 
-void Ball::draw(sf::RenderWindow& win) const {
-    win.draw(shape);
-}
-
 void Ball::bounce(const sf::Vector2f& PoI) {}
-
-void Ball::set_pos(const sf::Vector2f p) {
-    shape.setPosition(p);
-}
 
 int main() {
     sf::RenderWindow GameWindow(sf::VideoMode(1280, 720), "");
