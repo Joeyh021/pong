@@ -4,7 +4,7 @@
 #include <iostream>
 
 std::ostream& operator<<(std::ostream& os, const sf::Vector2i& v) {
-    os << '(' << v.x << ", " << v.y << ')' << std::endl;
+    os << '(' << v.x << ", " << v.y << ')';
     return os;
 }
 
@@ -40,7 +40,7 @@ Paddle::Paddle(const sf::Vector2f& size, const sf::Vector2f& pos, const sf::Colo
     shape = &rect;
 }
 
-bool Paddle::bounded(const sf::Vector2f& point) const {
+bool Paddle::bounded(const sf::Vector2f& pos) const {
     const sf::Vector2f& rectpos = rect.getPosition();
     const sf::Vector2f& rectsize = rect.getSize();
 }
@@ -88,7 +88,7 @@ int main() {
             }
         }
         std::cout << (mcoords = sf::Mouse::getPosition(GameWindow));
-        ball.set_pos(sf::Vector2f(mcoords));
+        std::cout << p1.bounded(sf::Vector2f(mcoords)) << std::endl;
 
         GameWindow.clear(sf::Color::Black);
 
