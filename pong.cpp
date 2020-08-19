@@ -54,14 +54,19 @@ bool Ball::bounded(const sf::Vector2f& point) const {
     return (magnitude(centre - point) < circle.getRadius());
 }
 
-34 void Ball::bounce(const sf::Vector2f& norm) {
-    float theta = acosf(dot(norm, trajectory) / magnitude(trajectory));
-
-    if (theta < PI / 2) {
+void Ball::bounce(const sf::Vector2f& norm) {
+    if (norm.x != 0) {
+        trajectory.x *= norm.x;
+    } else {
+        trajectory.y *= norm.y;
     }
 }
 
-void Ball::move() { this->set_pos(this->get_pos() + speed * trajectory); }
+void Ball::set_trajectory(const sf::Vector2f& v) {
+    trajectory.x = v.x / magnitude(v);
+    trajectory.y = v.y / magnitude(v);
+}
+const sf::Vector2f& Ball::get_trajectory() const { return trajectory; }
 
 int main() {
     sf::RenderWindow GameWindow(sf::VideoMode(1280, 720), "");
@@ -81,7 +86,8 @@ int main() {
 
     sf::Vector2i mcoords;
     ball.set_trajectory(sf::Vector2f(1.0f, 1.0f));  // set initial ball speed
-    ball.speed = 2.0f;
+    ball.speed = 2;
+    pL.speed = pR.speed = 5;
 
     while (GameWindow.isOpen()) {
         sf::Event event;
@@ -95,21 +101,27 @@ int main() {
                     break;
             }
         }
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
+            pL.move(sf::Vector2f(0, -1) * pL.speed);
+        } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
+            pL.move(sf::Vector2f(0, 1) * pL.speed);
+        }
+
         std::cout << (mcoords = sf::Mouse::getPosition(GameWindow));
 
         GameWindow.clear(sf::Color::Black);
-
-        if (collided(ball, pL)) {
-            ball.bounce(sf::Vector2f(1, 0));
-        } else if (collided(ball, pR)) {
-            ball.bounce(sf::Vector2f(-1, 0));
-        } else if (ball.get_pos().x <= 0) {
-            ball.bounce(sf::Vector2f(0, 1));
-        } else if (ball.get_pos().x >= GameWindow.getSize().x) {
-            ball.bounce(sf::Vector2f(0, -1));
-        }
-
-        ball.move();
+        /*
+                if (collided(ball, pL)) {
+                    ball.bounce(sf::Vector2f(1, 0));
+                } else if (collided(ball, pR)) {
+                    ball.bounce(sf::Vector2f(-1, 0));
+                } else if (ball.get_pos().x <= 0) {
+                    ball.bounce(sf::Vector2f(0, 1));
+                } else if (ball.get_pos().x >= GameWindow.getSize().x) {
+                    ball.bounce(sf::Vector2f(0, -1));
+                }
+        */
+        ball.move(ball.get_trajectory() * ball.speed);
         // draw that frame
         for (auto a : objects) {
             a->draw(GameWindow);

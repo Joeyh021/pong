@@ -29,6 +29,7 @@ class Paddle : public Collidable {
     sf::RectangleShape rect;
 
    public:
+    float speed;
     Paddle(const sf::Vector2f& size, const sf::Vector2f& pos, const sf::Color& colour);
 
     bool bounded(const sf::Vector2f& point) const override;
@@ -47,11 +48,11 @@ class Ball : public Collidable {
 
     bool bounded(const sf::Vector2f& point) const override;
 
-    void Ball::bounce(const sf::Vector2f& norm);
+    void bounce(const sf::Vector2f& norm);
 
-    void set_trajectory(sf::Vector2f);
+    void set_trajectory(const sf::Vector2f& v);
 
-    void move();
+    const sf::Vector2f& get_trajectory() const;
 };
 
 #endif
