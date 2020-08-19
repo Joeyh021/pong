@@ -38,14 +38,20 @@ class Ball : public Collidable {
    private:
     const int radius;
     sf::CircleShape circle;
+    sf::Vector2f trajectory;
 
    public:
+    float speed;
+
     Ball(int radius, const sf::Vector2f& pos, const sf::Color& colour);
 
     bool bounded(const sf::Vector2f& point) const override;
 
-    void bounce(const sf::Vector2f& PoI);
+    void Ball::bounce(const sf::Vector2f& norm);
 
+    void set_trajectory(sf::Vector2f);
+
+    void move();
 };
 
 #endif
