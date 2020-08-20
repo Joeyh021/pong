@@ -1,6 +1,10 @@
 #ifndef PONG
 #define PONG
+
 #include <SFML/Graphics.hpp>
+
+#define PI 3.141592653
+
 class Collidable {
    protected:
     sf::Shape* shape;
@@ -20,8 +24,6 @@ class Collidable {
     void set_pos(const sf::Vector2f& pos);
     void move(const sf::Vector2f& movement);
 };
-
-bool collided(const Collidable& objA, const Collidable& objB);
 
 class Paddle : public Collidable {
    private:
