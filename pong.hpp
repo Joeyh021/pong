@@ -26,8 +26,8 @@ class object {
     void set_pos(const sf::Vector2f& pos);
     void move(const sf::Vector2f& movement);
 
-    void object::set_speed(float s);
-    float object::get_speed() const;
+    void set_speed(float s);
+    float get_speed() const;
 };
 
 // the paddles for the players to control
@@ -35,7 +35,6 @@ class Paddle : public object {
    private:
     const sf::Vector2f size;
     sf::RectangleShape rect;
-    float speed;
 
    public:
     Paddle(const sf::Vector2f& size, const sf::Vector2f& pos, const sf::Color& colour, float speed);
@@ -49,7 +48,6 @@ class Ball : public object {
     const int radius;
     sf::CircleShape circle;
     sf::Vector2f trajectory;
-    float speed;
 
    public:
     Ball(int radius, const sf::Vector2f& pos, const sf::Color& colour, float speed);

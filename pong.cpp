@@ -59,20 +59,22 @@ float object::get_speed() const {
 
 // Paddle class functions
 // constructor inits attributes and passes saves a shape pointer so the base half of the class can do stuff
-Paddle::Paddle(const sf::Vector2f& size, const sf::Vector2f& pos, const sf::Color& colour, float speed) : size(size), speed(speed) {
+Paddle::Paddle(const sf::Vector2f& size, const sf::Vector2f& pos, const sf::Color& colour, float speed) : size(size) {
     rect = sf::RectangleShape(size);
     rect.setPosition(pos);
     shape = &rect;
+    this->speed = speed;
 }
 
 // Ball class functions
 // constructor does similar to rect
-Ball::Ball(int radius, const sf::Vector2f& pos, const sf::Color& colour, float speed) : radius(radius), speed(speed) {
+Ball::Ball(int radius, const sf::Vector2f& pos, const sf::Color& colour, float speed) : radius(radius) {
     circle = sf::CircleShape(radius);
     circle.setPosition(pos);
     circle.setFillColor(colour);
     shape = &circle;
     trajectory = sf::Vector2f(0.0f, 0.0f);  // zeroed intially so that we dont forget to redo it
+    this->speed = speed;
 }
 
 // bounces the ball with respect to the normal of the surface its bouncing off
@@ -131,7 +133,7 @@ int main() {
 
     while (GameWindow.isOpen()) {
         sf::Event event;
-
+        // event handling bits
         while (GameWindow.pollEvent(event)) {
             switch (event.type) {
                 case sf::Event::Closed:
@@ -141,6 +143,11 @@ int main() {
                     break;
             }
         }
+
+        // clear the windows before we start drawing
+        GameWindow.clear(sf::Color::Black);
+
+        // keyboard input
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
             pL.move(sf::Vector2f(0, -1) * pL.get_speed());
         } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
@@ -153,10 +160,7 @@ int main() {
             pR.move(sf::Vector2f(0, 1) * pR.get_speed());
         }
 
-        std::cout << (mcoords = sf::Mouse::getPosition(GameWindow)) << std::endl;
-
-        GameWindow.clear(sf::Color::Black);
-
+        // collision detection bit
         if (collided(ball, top)) {
             ball.bounce(sf::Vector2f(0, 1));
         } else if (collided(ball, bottom)) {
@@ -167,9 +171,11 @@ int main() {
             ball.bounce(sf::Vector2f(-1, 0));
         }
 
+        // move the ball, also print the mouse coords bc why not
         ball.move(ball.get_trajectory() * ball.get_speed());
+        std::cout << (mcoords = sf::Mouse::getPosition(GameWindow)) << std::endl;
 
-        // draw that frame
+        // draw that frame and display it
         for (auto a : objects) {
             a->draw(GameWindow);
         }
