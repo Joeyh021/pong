@@ -9,22 +9,38 @@ std::ostream& operator<<(std::ostream& os, const sf::Vector2i& v) {
     return os;
 }
 
-inline float magnitude(const sf::Vector2f& v) { return sqrtf(v.x * v.x + v.y * v.y); }
+inline float magnitude(const sf::Vector2f& v) {
+    return sqrtf(v.x * v.x + v.y * v.y);
+}
 
-inline float dot(const sf::Vector2f& v1, const sf::Vector2f v2) { return (v1.x + v2.x) * (v1.y + v2.y); }
-Collidable::Collidable() : shape(nullptr){};
+inline float dot(const sf::Vector2f& v1, const sf::Vector2f v2) {
+    return (v1.x + v2.x) * (v1.y + v2.y);
+}
+object::object() : shape(nullptr){};
 
-const sf::Color& Collidable::get_colour() const { return shape->getFillColor(); }
+const sf::Color& object::get_colour() const {
+    return shape->getFillColor();
+}
 
-void Collidable::set_colour(const sf::Color& col) { shape->setFillColor(col); }
+void object::set_colour(const sf::Color& col) {
+    shape->setFillColor(col);
+}
 
-const sf::Vector2f& Collidable::get_pos() const { return shape->getPosition(); }
+const sf::Vector2f& object::get_pos() const {
+    return shape->getPosition();
+}
 
-void Collidable::set_pos(const sf::Vector2f& pos) { shape->setPosition(pos); }
+void object::set_pos(const sf::Vector2f& pos) {
+    shape->setPosition(pos);
+}
 
-void Collidable::move(const sf::Vector2f& movement) { shape->move(movement); }
+void object::move(const sf::Vector2f& movement) {
+    shape->move(movement);
+}
 
-void Collidable::draw(sf::RenderWindow& win) const { win.draw(*shape); }
+void object::draw(sf::RenderWindow& win) const {
+    win.draw(*shape);
+}
 
 Paddle::Paddle(const sf::Vector2f& size, const sf::Vector2f& pos, const sf::Color& colour) : size(size) {
     rect = sf::RectangleShape(size);
@@ -33,11 +49,7 @@ Paddle::Paddle(const sf::Vector2f& size, const sf::Vector2f& pos, const sf::Colo
 }
 
 bool Paddle::bounded(const sf::Vector2f& pos) const {
-    const sf::Vector2f& rectpos = rect.getPosition();
-    const sf::Vector2f& rectsize = rect.getSize();
-    if (pos.x > rectpos.x + rectsize.x || pos.x < rectpos.x) return false;
-    if (pos.y > rectpos.y + rectsize.y || pos.y < rectpos.y) return false;
-    return true;
+    return rect.getGlobalBounds().contains(pos);
 }
 
 Ball::Ball(int radius, const sf::Vector2f& pos, const sf::Color& colour) : radius(radius) {
@@ -47,8 +59,12 @@ Ball::Ball(int radius, const sf::Vector2f& pos, const sf::Color& colour) : radiu
     trajectory = sf::Vector2f(0.0f, 0.0f);
 }
 
+const sf::Vector2f& Ball::get_centre() const {
+    return circle.getPosition() + sf::Vector2f(circle.getRadius(), circle.getRadius());
+}
+
 bool Ball::bounded(const sf::Vector2f& point) const {
-    auto centre = circle.getPosition() + sf::Vector2f(circle.getRadius(), circle.getRadius());
+    auto centre = get_centre();
     return (magnitude(centre - point) < circle.getRadius());
 }
 
@@ -64,9 +80,15 @@ void Ball::set_trajectory(const sf::Vector2f& v) {
     trajectory.x = v.x / magnitude(v);
     trajectory.y = v.y / magnitude(v);
 }
-const sf::Vector2f& Ball::get_trajectory() const { return trajectory; }
 
-bool collided(const Collidable& objA, const Collidable& objB) { return true; }
+const sf::Vector2f& Ball::get_trajectory() const {
+    return trajectory;
+}
+
+bool collided(const Ball& b, const Paddle& r) {
+    return b.circle.getGlobalBounds().intersects(r.rect.getGlobalBounds());
+}
+
 int main() {
     sf::RenderWindow GameWindow(sf::VideoMode(1280, 720), "");
     GameWindow.setTitle("Pong");
@@ -77,7 +99,7 @@ int main() {
     Paddle pL(sf::Vector2f(30.0f, 400.0f), sf::Vector2f(30.0f, 70.0f), sf::Color::White);
     Paddle pR(sf::Vector2f(30.0f, 400.0f), sf::Vector2f(1250.0f, 70.0f), sf::Color::White);
     Ball ball(30, sf::Vector2f(640.0f, 360.0f), sf::Color::Red);
-    std::array<Collidable*, 3> objects;
+    std::array<object*, 3> objects;
     objects[0] = &pL;
     objects[1] = &pR;
     objects[2] = &ball;

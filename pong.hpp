@@ -5,15 +5,14 @@
 
 #define PI 3.141592653
 
-class Collidable {
+class object {
    protected:
     sf::Shape* shape;
 
    public:
-    Collidable();
+    object();
 
     virtual bool bounded(const sf::Vector2f& point) const = 0;
-    friend bool collided(const Collidable& objA, const Collidable& objB);
 
     void draw(sf::RenderWindow& win) const;
 
@@ -25,7 +24,9 @@ class Collidable {
     void move(const sf::Vector2f& movement);
 };
 
-class Paddle : public Collidable {
+class Ball;
+
+class Paddle : public object {
    private:
     const sf::Vector2f size;
     sf::RectangleShape rect;
@@ -35,9 +36,11 @@ class Paddle : public Collidable {
     Paddle(const sf::Vector2f& size, const sf::Vector2f& pos, const sf::Color& colour);
 
     bool bounded(const sf::Vector2f& point) const override;
+
+    friend bool collided(const Ball& b, const Paddle& r);
 };
 
-class Ball : public Collidable {
+class Ball : public object {
    private:
     const int radius;
     sf::CircleShape circle;
@@ -50,11 +53,15 @@ class Ball : public Collidable {
 
     bool bounded(const sf::Vector2f& point) const override;
 
+    const sf::Vector2f& get_centre() const;
+
     void bounce(const sf::Vector2f& norm);
 
     void set_trajectory(const sf::Vector2f& v);
 
     const sf::Vector2f& get_trajectory() const;
+
+    friend bool collided(const Ball& b, const Paddle& r);
 };
 
 #endif
