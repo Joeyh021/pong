@@ -3,6 +3,7 @@
 #include <array>
 #include <cmath>
 #include <iostream>
+#include <cstdlib>
 
 // helper function to print a vector via operator overload
 std::ostream& operator<<(std::ostream& os, const sf::Vector2i& v) {
@@ -22,44 +23,44 @@ inline float magnitude(const sf::Vector2f& v) {
 object::object() : shape(nullptr){};
 
 // colour getters and setters
-const sf::Color& object::get_colour() const {
+const sf::Color& object::get_colour() const{
     return shape->getFillColor();
 }
 
-void object::set_colour(const sf::Color& col) {
+void object::set_colour(const sf::Color& col){
     shape->setFillColor(col);
 }
 
 // position getters and setters
-const sf::Vector2f& object::get_pos() const {
+const sf::Vector2f& object::get_pos() const{
     return shape->getPosition();
 }
 
-void object::set_pos(const sf::Vector2f& pos) {
+void object::set_pos(const sf::Vector2f& pos){
     shape->setPosition(pos);
 }
 
 // move the shape
-void object::move(const sf::Vector2f& movement) {
+void object::move(const sf::Vector2f& movement){
     shape->move(movement);
 }
 
 // draw the shape to the window
-void object::draw(sf::RenderWindow& win) const {
+void object::draw(sf::RenderWindow& win) const{
     win.draw(*shape);
 }
 // speed getters and setters
-void object::set_speed(float s) {
+void object::set_speed(float s){
     speed = s;
 }
 
-float object::get_speed() const {
+float object::get_speed() const{
     return speed;
 }
 
 // Paddle class functions
 // constructor inits attributes and passes saves a shape pointer so the base half of the class can do stuff
-Paddle::Paddle(const sf::Vector2f& size, const sf::Vector2f& pos, const sf::Color& colour, float speed) : size(size) {
+Paddle::Paddle(const sf::Vector2f& size, const sf::Vector2f& pos, const sf::Color& colour, float speed) : size(size){
     rect = sf::RectangleShape(size);
     rect.setPosition(pos);
     shape = &rect;
@@ -68,7 +69,7 @@ Paddle::Paddle(const sf::Vector2f& size, const sf::Vector2f& pos, const sf::Colo
 
 // Ball class functions
 // constructor does similar to rect
-Ball::Ball(int radius, const sf::Vector2f& pos, const sf::Color& colour, float speed) : radius(radius) {
+Ball::Ball(int radius, const sf::Vector2f& pos, const sf::Color& colour, float speed) : radius(radius){
     circle = sf::CircleShape(radius);
     circle.setPosition(pos);
     circle.setFillColor(colour);
@@ -78,7 +79,7 @@ Ball::Ball(int radius, const sf::Vector2f& pos, const sf::Color& colour, float s
 }
 
 // bounces the ball with respect to the normal of the surface its bouncing off
-void Ball::bounce(const sf::Vector2f& norm) {
+void Ball::bounce(const sf::Vector2f& norm){
     if (norm.x == 0) {
         trajectory.y *= -1;
     } else {
@@ -87,7 +88,7 @@ void Ball::bounce(const sf::Vector2f& norm) {
 }
 
 // getters and setters for the trajectory of the ball
-void Ball::set_trajectory(const sf::Vector2f& v) {
+void Ball::set_trajectory(const sf::Vector2f& v){
     trajectory.x = v.x / magnitude(v);
     trajectory.y = v.y / magnitude(v);
 }
@@ -95,7 +96,13 @@ void Ball::set_trajectory(const sf::Vector2f& v) {
 const sf::Vector2f& Ball::get_trajectory() const {
     return trajectory;
 }
-
+void Ball::reset(const sf::Vector2f& p){
+    set_pos(p);
+    float f1 = ((float)rand() / (float) RAND_MAX) * 2 - 1;
+    float f2 = ((float)rand() / (float) RAND_MAX) * 2 - 1;
+    set_trajectory(sf::Vector2f(f1,f2));
+    
+}
 // collision detection functions, one for a paddle and a ball, another for just a bounding rect and a ball
 bool collided(const Ball& b, const Paddle& r) {
     return b.circle.getGlobalBounds().intersects(r.rect.getGlobalBounds());
@@ -128,8 +135,9 @@ int main() {
 
     // variable to store mouse coords for debug purposes
     sf::Vector2i mcoords;
-
-    ball.set_trajectory(sf::Vector2f(1.0f, 1.0f));  // set initial ball trajectory (this should be done randomly)
+    pL.score = pR.score = 0;
+    sf::Vector2f origin(640.0f, 360.0f);
+    ball.reset(origin);  // set initial ball trajectory (this should be done randomly)
 
     while (GameWindow.isOpen()) {
         sf::Event event;
@@ -161,14 +169,28 @@ int main() {
         }
 
         // collision detection bit
+        // just bounce off paddles and sides
+
         if (collided(ball, top)) {
             ball.bounce(sf::Vector2f(0, 1));
         } else if (collided(ball, bottom)) {
             ball.bounce(sf::Vector2f(0, -1));
         } else if (collided(ball, pL)) {
             ball.bounce(sf::Vector2f(1, 0));
+            ball.set_speed(ball.get_speed()+1);
         } else if (collided(ball, pR)) {
             ball.bounce(sf::Vector2f(-1, 0));
+            ball.set_speed(ball.get_speed()+1);
+        }
+        // backs, score points and reset ball
+        else if (collided(ball, left)) {
+            pR.score++;
+            ball.reset(sf::Vector2f(640.0f, 360.0f));
+            ball.set_speed(5);
+        } else if (collided(ball, right)) {
+            pL.score++;
+            ball.reset(sf::Vector2f(640.0f, 360.0f));
+            ball.set_speed(5);
         }
 
         // move the ball, also print the mouse coords bc why not

@@ -37,6 +37,7 @@ class Paddle : public object {
     sf::RectangleShape rect;
 
    public:
+    int score;
     Paddle(const sf::Vector2f& size, const sf::Vector2f& pos, const sf::Color& colour, float speed);
 
     friend bool collided(const Ball& b, const Paddle& r);
@@ -53,6 +54,7 @@ class Ball : public object {
     Ball(int radius, const sf::Vector2f& pos, const sf::Color& colour, float speed);
 
     void bounce(const sf::Vector2f& norm);
+    void reset(const sf::Vector2f& p);
 
     void set_trajectory(const sf::Vector2f& v);
     const sf::Vector2f& get_trajectory() const;
